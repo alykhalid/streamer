@@ -18,7 +18,7 @@
     </style>
 </head>
 <body>
-    <h1>5</h1>
+    <h1>6</h1>
     <h2>Tap your NFC card to cast a video!</h2>
     <button id="startNfc">Start NFC Scan</button>
     <div id="log">Logs:</div>
@@ -29,7 +29,7 @@
             logDiv.innerText += message + '\n';
         }
 
-        async function setupNFC() {
+        function setupNFC() {
             if ('NDEFReader' in window) {
                 const ndef = new NDEFReader();
                 ndef.scan().then(() => {
