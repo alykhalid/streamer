@@ -5,17 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NFC to Chromecast</title>
     <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+    <style>
+        #log {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+            max-width: 600px;
+            margin: 20px auto;
+            white-space: pre-wrap;
+        }
+    </style>
 </head>
 <body>
     <h1>Tap your NFC card to cast a video!</h1>
+    <div id="log">Logs:</div>
 
     <script>
+        function logMessage(message) {
+            const logDiv = document.getElementById('log');
+            logDiv.innerText += message + '\n';
+        }
+
         async function setupNFC() {
             if ('NDEFReader' in window) {
                 const ndef = new NDEFReader();
                 try {
                     await ndef.scan();
-                    console.log("NFC scanning started successfully.");
+                    logMessage("NFC scanning started successfully.");
 
                     ndef.addEventListener("reading", event => {
                         const nfcMessage = event.message;
@@ -25,10 +42,10 @@
                         }
                     });
                 } catch (error) {
-                    console.error("NFC scanning failed to start: ", error);
+                    logMessage("NFC scanning failed to start: " + error);
                 }
             } else {
-                console.error("Web NFC API not supported on this browser.");
+                logMessage("Web NFC API not supported on this browser.");
             }
         }
 
@@ -37,7 +54,7 @@
             const record = nfcMessage.records[0];
             const decoder = new TextDecoder(record.encoding);
             const videoId = decoder.decode(record.data);
-            console.log("Video ID from NFC:", videoId);
+            logMessage("Video ID from NFC: " + videoId);
 
             // Example of a hardcoded YouTube video ID extraction
             return videoId;
@@ -56,11 +73,11 @@
                 const mediaInfo = new chrome.cast.media.MediaInfo(`https://www.youtube.com/watch?v=nejfvm07my0`, 'video/mp4');
                 const request = new chrome.cast.media.LoadRequest(mediaInfo);
                 session.loadMedia(request).then(
-                    () => { console.log('Media loaded successfully'); },
-                    (errorCode) => { console.log('Error loading media: ' + errorCode); }
+                    () => { logMessage('Media loaded successfully'); },
+                    (errorCode) => { logMessage('Error loading media: ' + errorCode); }
                 );
             } else {
-                console.log("No active Cast session.");
+                logMessage("No active Cast session.");
             }
         }
 
