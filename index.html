@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFC to Chromecast</title>
+    <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+</head>
+<body>
+    <h1>Tap your NFC card to cast a video!</h1>
+
+    <script>
+        async function setupNFC() {
+            if ('NDEFReader' in window) {
+                const ndef = new NDEFReader();
+                try {
+                    await ndef.scan();
+                    console.log("NFC scanning started successfully.");
+
+                    ndef.addEventListener("reading", event => {
+                        const nfcMessage = event.message;
+                        const videoId = parseNFCMessage(nfcMessage);
+                        if (videoId) {
+                            startCasting(videoId);
+                        }
+                    });
+                } catch (error) {
+                    console.error("NFC scanning failed to start: ", error);
+                }
+            } else {
+                console.error("Web NFC API not supported on this browser.");
+            }
+        }
+
+        function parseNFCMessage(nfcMessage) {
+            // Extract the first record and its data as a string
+            const record = nfcMessage.records[0];
+            const decoder = new TextDecoder(record.encoding);
+            const videoId = decoder.decode(record.data);
+            console.log("Video ID from NFC:", videoId);
+
+            // Example of a hardcoded YouTube video ID extraction
+            return videoId;
+        }
+
+        function startCasting(videoId) {
+            // Initialize the Cast SDK
+            cast.framework.CastContext.getInstance().setOptions({
+                receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
+                autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+            });
+
+            // Start casting the YouTube video
+            const session = cast.framework.CastContext.getInstance().getCurrentSession();
+            if (session) {
+                const mediaInfo = new chrome.cast.media.MediaInfo(`https://www.youtube.com/watch?v=nejfvm07my0`, 'video/mp4');
+                const request = new chrome.cast.media.LoadRequest(mediaInfo);
+                session.loadMedia(request).then(
+                    () => { console.log('Media loaded successfully'); },
+                    (errorCode) => { console.log('Error loading media: ' + errorCode); }
+                );
+            } else {
+                console.log("No active Cast session.");
+            }
+        }
+
+        // Start NFC setup on page load
+        window.onload = setupNFC;
+    </script>
+</body>
+</html>
