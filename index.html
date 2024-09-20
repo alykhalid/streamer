@@ -60,6 +60,7 @@
         }
 
         function startCasting(videoId) {
+            logMessage('Initialize the Cast SDK');
             // Initialize the Cast SDK
             cast.framework.CastContext.getInstance().setOptions({
                 receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
@@ -69,6 +70,7 @@
             // Start casting the YouTube video
             const session = cast.framework.CastContext.getInstance().getCurrentSession();
             if (session) {
+                logMessage('Session not null');
                 const mediaInfo = new chrome.cast.media.MediaInfo(`https://www.youtube.com/watch?v=nejfvm07my0`, 'video/mp4');
                 const request = new chrome.cast.media.LoadRequest(mediaInfo);
                 session.loadMedia(request).then(
