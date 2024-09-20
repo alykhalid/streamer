@@ -18,7 +18,7 @@
     </style>
 </head>
 <body>
-    <h1>6</h1>
+    <h1>7</h1>
     <h2>Tap your NFC card to cast a video!</h2>
     <button id="startNfc">Start NFC Scan</button>
     <div id="log">Logs:</div>
@@ -39,6 +39,7 @@
                   };
                   ndef.onreading = event => {
                     logMessage("NDEF message read.");
+                    const videoId = "something";
                     startCasting(videoId);
                     logMessage('after starting casting');
                   };
